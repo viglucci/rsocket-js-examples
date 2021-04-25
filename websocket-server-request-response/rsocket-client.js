@@ -2,6 +2,8 @@ const { RSocketClient } = require('rsocket-core');
 const RSocketWebsocketClient = require('rsocket-websocket-client').default;
 const WebSocket = require('ws');
 
+const requestInterval = 750;
+
 function now() {
   return (new Date()).getTime();
 }
@@ -30,25 +32,33 @@ async function run() {
     const start = now();
     const interval = setInterval(() => {
 
+      const payload = { data: "What is the current time?" };
+
+      console.log(`requestResponse request`, payload);
+
+      let cancel = null;
       rsocket
-        .requestResponse({ data: "What is the current time?" })
+        .requestResponse(payload)
         .subscribe({
           onComplete: (response) => {
-            console.log(response);
+            console.log(`requestResponse response`, response);
           },
           onError: (error) => {
             console.error(error);
           },
-          onSubscribe: (cancel) => {
-            /* call cancel() to stop onComplete/onError */
+          onSubscribe: (_cancel) => {
+            cancel = _cancel;
           },
         });
 
-      if ((now() - start) >= 5000) {
+      const elapsedTime = now() - start;
+      if (elapsedTime >= 5000) {
+        console.log(`Elapsed time: ${elapsedTime}... cancelling and exiting!`);
         clearInterval(interval);
+        cancel && cancel();
         resolve();
       }
-    }, 750);
+    }, requestInterval);
   });
 }
 

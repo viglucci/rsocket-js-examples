@@ -24,7 +24,8 @@ const getRequestHandler = (requestingRSocket, setupPayload) => {
     console.log(payload);
     console.log(`requestResponse request`, payload);
     return new Single((subscriber) => {
-      setTimeout(() => {
+
+      const timeout = setTimeout(() => {
         const msg = `${new Date()}`;
         console.log(`requestResponse response`, msg);
         try {
@@ -36,7 +37,13 @@ const getRequestHandler = (requestingRSocket, setupPayload) => {
           subscriber.onError(e);
         }
       }, 0);
-      subscriber.onSubscribe();
+
+      const onCancel = () => {
+        console.log("Client cancelled request...")
+        clearTimeout(timeout);
+      };
+
+      subscriber.onSubscribe(onCancel);
     });
   }
 
@@ -51,6 +58,8 @@ const rSocketServer = new RSocketServer({
   getRequestHandler,
 });
 
+console.log(`Server starting on port ${port}...`);
+
 rSocketServer.start();
 
-console.log(`Server started on port ${port}`);
+
