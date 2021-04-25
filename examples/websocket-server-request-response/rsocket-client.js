@@ -3,6 +3,7 @@ const RSocketWebsocketClient = require('rsocket-websocket-client').default;
 const WebSocket = require('ws');
 
 const requestInterval = 750;
+const maxTimeElapsed = 1000;
 
 function now() {
   return (new Date()).getTime();
@@ -52,7 +53,7 @@ async function run() {
         });
 
       const elapsedTime = now() - start;
-      if (elapsedTime >= 5000) {
+      if (elapsedTime >= maxTimeElapsed) {
         console.log(`Elapsed time: ${elapsedTime}... cancelling and exiting!`);
         clearInterval(interval);
         cancel && cancel();

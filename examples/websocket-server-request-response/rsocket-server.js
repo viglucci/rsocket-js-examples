@@ -13,19 +13,47 @@ const transportOpts = {
 
 const transport = new WebSocketTransport(transportOpts);
 
+const statuses = {
+  PENDING: "pending",
+  CANCELLED: "cancelled"
+};
+
 const getRequestHandler = (requestingRSocket, setupPayload) => {
   console.log(`setupPayload sent`);
 
-  function handleFireAndForget() {
-    console.log(`fireAndForget payload: ${payload.data.toString()}`);
-  }
-
   function handleRequestResponse(payload) {
-    console.log(payload);
+    let status = statuses.PENDING;
+
     console.log(`requestResponse request`, payload);
+
     return new Single((subscriber) => {
 
-      const timeout = setTimeout(() => {
+      /**
+       * In the event that the client cancels the request before
+       * the server can respond, we will change our status to cancelled
+       * and avoid calling `onComplete` on the `subscriber` instance in the
+       * `nextTick` callback.
+       */
+      function handleCancellation() {
+        status = statuses.CANCELLED;
+      }
+
+      subscriber.onSubscribe(() => handleCancellation());
+
+      /**
+       * Leverage `setTimeout` to simulate a delay
+       * in responding to the client.
+       */
+      setTimeout(() => {
+
+        /**
+         * If the client cancelled the request we can
+         * retrun early and avoid doing any of the work below.
+         */
+        if (status === statuses.CANCELLED) {
+          return;
+        }
+
         const msg = `${new Date()}`;
         console.log(`requestResponse response`, msg);
         try {
@@ -36,19 +64,11 @@ const getRequestHandler = (requestingRSocket, setupPayload) => {
         } catch (e) {
           subscriber.onError(e);
         }
-      }, 0);
-
-      const onCancel = () => {
-        console.log("Client cancelled request...")
-        clearTimeout(timeout);
-      };
-
-      subscriber.onSubscribe(onCancel);
+      }, 100);
     });
   }
 
   return {
-    fireAndForget: handleFireAndForget,
     requestResponse: handleRequestResponse,
   };
 };
