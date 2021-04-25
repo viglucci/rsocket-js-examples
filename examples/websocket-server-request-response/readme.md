@@ -21,7 +21,7 @@ git clone https://github.com/viglucci/rsocket-js-examples.git
 Enter the example directory.
 
 ```
-cd rsocket-js-examples && cd websocket-server-request-response
+cd rsocket-js-examples && cd examples/websocket-server-request-response
 ```
 
 Install npm dependencies.
