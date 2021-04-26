@@ -4,11 +4,11 @@ In this directory you will find an example using [`rsocket-js`](https://github.c
 
 ## Client Behavior
 
-The client will connect to the server, and on an interval, ask the server what the current time is. After a certain period of time has passed, the client will disconnect and the process will close.
+The client will connect to the server, and request a number of random int values from the server. Each time the server responds with a value the client will print out the message.
 
 ## Server Behavior
 
-The server will start and wait for clients to connect. Once a client connects, the server will respond to `request/response` messages with the current time serialized as a string.
+The server will start and wait for clients to connect. Once a client connects, the server will respond to `request/stream` messages with a stream of random integers up the numbers of values requested by the client.
 
 ## Running the example
 
@@ -21,7 +21,7 @@ git clone https://github.com/viglucci/rsocket-js-examples.git
 Enter the example directory.
 
 ```
-cd rsocket-js-examples && cd examples/websocket-server-request-response
+cd rsocket-js-examples && cd examples/websocket-server-request-stream
 ```
 
 Install npm dependencies.

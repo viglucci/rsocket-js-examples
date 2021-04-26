@@ -2,10 +2,6 @@ const { RSocketClient, JsonSerializers } = require('rsocket-core');
 const RSocketWebsocketClient = require('rsocket-websocket-client').default;
 const WebSocket = require('ws');
 
-function now() {
-  return (new Date()).getTime();
-}
-
 async function connect() {
   const transportOptions = {
     url: 'ws://127.0.0.1:9898',
