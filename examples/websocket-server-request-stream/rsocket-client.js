@@ -1,4 +1,4 @@
-const { RSocketClient, JsonSerializers } = require('rsocket-core');
+const { RSocketClient, JsonSerializers, APPLICATION_JSON } = require('rsocket-core');
 const RSocketWebsocketClient = require('rsocket-websocket-client').default;
 const WebSocket = require('ws');
 
@@ -12,8 +12,8 @@ async function connect() {
   const setup = {
     keepAlive: 1000000,
     lifetime: 100000,
-    dataMimeType: 'text/plain',
-    metadataMimeType: 'text/plain'
+    dataMimeType: APPLICATION_JSON.string,
+    metadataMimeType: APPLICATION_JSON.string
   };
   const transport = new RSocketWebsocketClient(transportOptions);
   const client = new RSocketClient({
