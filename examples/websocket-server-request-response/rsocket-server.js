@@ -32,7 +32,7 @@ const getRequestHandler = (requestingRSocket, setupPayload) => {
        * In the event that the client cancels the request before
        * the server can respond, we will change our status to cancelled
        * and avoid calling `onComplete` on the `subscriber` instance in the
-       * `nextTick` callback.
+       * `setTimeout` callback.
        */
       function handleCancellation() {
         status = statuses.CANCELLED;
