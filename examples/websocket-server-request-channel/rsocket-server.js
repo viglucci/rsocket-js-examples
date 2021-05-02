@@ -1,7 +1,7 @@
-const { RSocketServer } = require('rsocket-core');
+const { RSocketServer, JsonSerializers } = require('rsocket-core');
 const RSocketWebsocketServer = require('rsocket-websocket-server').default;
 const { Flowable } = require('rsocket-flowable');
-const { buildMessage } = require('./lib/util');
+const { buildMessage, deSerializeMsg } = require('./lib/util');
 const logger = require('./lib/logger');
 const RandomNumberService = require('./lib/RandomNumberService');
 
@@ -9,7 +9,9 @@ const randomNumberService = new RandomNumberService();
 
 let nextClientId = 0;
 
-const getRequestHandler = (requestingRsocket) => {
+const getRequestHandler = (requestingRsocket, setupPayload) => {
+
+  logger.info('Client connected.', { setupPayload });
 
   requestingRsocket.connectionStatus().subscribe((status) => {
     logger.info('Client connection status update: ', status);
@@ -52,7 +54,7 @@ const getRequestHandler = (requestingRsocket) => {
                 randomNumbersSub.cancel();
               },
               onNext: (number) => {
-                const payload = buildMessage(number);
+                const payload = buildMessage({ value: number });
 
                 logger.info(
                   `Transmitting payload:`,
@@ -81,15 +83,16 @@ const getRequestHandler = (requestingRsocket) => {
           onSubscribe: (sub) => {
             clientDataSub = sub;
             logger.info('Subscribed to client channel: ', { clientId: thisClientId });
-            clientDataSub.request(4);
+            clientDataSub.request(1);
           },
 
           onError: (e) => {
-            logger.error("clientFlowable", e);
+            logger.error("ClientFlowable returned error:", e);
           },
 
-          onNext: (clientPayload) => {
-            logger.info('Received payload from client:', { payload: clientPayload, clientId: thisClientId });
+          onNext: (payload) => {
+            logger.info('Received payload from client:',
+              { payload: deSerializeMsg(payload), clientId: thisClientId });
           },
 
           onComplete: () => {
@@ -108,7 +111,10 @@ const serverOptions = {
 
 const transport = new RSocketWebsocketServer(serverOptions);
 
-const server = new RSocketServer({ transport, getRequestHandler });
+const server = new RSocketServer({
+  transport,
+  getRequestHandler
+});
 
 logger.info("Server starting", serverOptions);
 

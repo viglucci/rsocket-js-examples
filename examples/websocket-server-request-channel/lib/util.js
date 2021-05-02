@@ -9,7 +9,10 @@ let finalCloseOperation;
  * Allow for graceful cleanup when/if the process is going to close.
  */
 closeWithGrace(async function ({ signal, err, manual }) {
-  if (err) { logger.error(err); }
+  if (err) {
+    logger.error('Process closing with error:', err);
+    console.error(err.stack);
+  }
   for (cb of closingOperations) {
     await cb({ err, signal, manual });
   }
@@ -18,6 +21,8 @@ closeWithGrace(async function ({ signal, err, manual }) {
   }
 });
 
+const serializeData = (data) => JSON.stringify(data);
+
 module.exports = {
   getRandomLetter: () => {
     return alphabet[Math.floor(Math.random() * alphabet.length)];
@@ -25,9 +30,16 @@ module.exports = {
   getRandomNumber(max = 1000) {
     return Math.floor(Math.random() * max);
   },
-  buildMessage: (value) => {
+  buildMessage: (data) => {
     return {
-      data: JSON.stringify(value)
+      data: serializeData(data)
+    };
+  },
+  serializeData,
+  deSerializeMsg: ({ data, metadata }) => {
+    return {
+      data: data != null ? JSON.parse(data) : null,
+      metadata: metadata != null ? JSON.parse(metadata) : null
     };
   },
   sleep: async (ms) => {
