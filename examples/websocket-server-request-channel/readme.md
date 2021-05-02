@@ -4,11 +4,11 @@ In this directory you will find an example using [`rsocket-js`](https://github.c
 
 ## Client Behavior
 
-The client will connect to the server, and request a number of random int values from the server. Each time the server responds with a value the client will print out the message.
+TODO
 
 ## Server Behavior
 
-The server will start and wait for clients to connect. Once a client connects, the server will respond to `request/stream` messages with a stream of random integers up the numbers of values requested by the client.
+TODO
 
 ## Running the example
 
