@@ -1,4 +1,4 @@
-const { RSocketServer, JsonSerializers, Utf8Encoders } = require('rsocket-core');
+const { RSocketServer, JsonSerializers } = require('rsocket-core');
 const RSocketWebSocketServer = require('rsocket-websocket-server');
 const { Flowable } = require('rsocket-flowable');
 
