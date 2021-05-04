@@ -7,8 +7,6 @@ const RandomNumberService = require('./lib/RandomNumberService');
 
 const randomNumberService = new RandomNumberService();
 
-let nextClientId = 0;
-
 const getRequestHandler = (requestingRsocket, setupPayload) => {
 
   logger.info('Client connected.', { setupPayload });
@@ -24,8 +22,6 @@ const getRequestHandler = (requestingRsocket, setupPayload) => {
       return new Flowable((subscriber) => {
         let randomNumbersSub;
 
-        const thisClientId = ++nextClientId;
-
         /**
          * The stream of messages the client wants the server to send to it.
          */
@@ -38,8 +34,7 @@ const getRequestHandler = (requestingRsocket, setupPayload) => {
           request: (maxSupportedStreamSize) => {
 
             logger.info(
-              `Client requesting up to ${maxSupportedStreamSize} payloads.`,
-              { clientId: thisClientId }
+              `Client requested up to ${maxSupportedStreamSize} payloads.`
             );
 
             let streamed = 0;
@@ -57,8 +52,8 @@ const getRequestHandler = (requestingRsocket, setupPayload) => {
                 const payload = buildMessage({ value: number });
 
                 logger.info(
-                  `Transmitting payload:`,
-                  { payload, clientId: thisClientId }
+                  'Sending (serialized):',
+                  { payload }
                 );
 
                 subscriber.onNext(payload);
@@ -82,21 +77,21 @@ const getRequestHandler = (requestingRsocket, setupPayload) => {
         clientFlowable.subscribe({
           onSubscribe: (sub) => {
             clientDataSub = sub;
-            logger.info('Subscribed to client channel: ', { clientId: thisClientId });
-            clientDataSub.request(1);
+            logger.info('Subscribed to client stream.');
+            clientDataSub.request(0x7fffffff);
           },
 
           onError: (e) => {
-            logger.error("ClientFlowable returned error:", e);
+            logger.error('ClientFlowable returned error:', e);
           },
 
           onNext: (payload) => {
-            logger.info('Received payload from client:',
-              { payload: deSerializeMsg(payload), clientId: thisClientId });
+            logger.info('Received (deserialized):',
+              { payload: deSerializeMsg(payload) });
           },
 
           onComplete: () => {
-            logger.info('End of client data stream.', { clientId: thisClientId });
+            logger.info('End of client data stream.');
           }
         });
       });

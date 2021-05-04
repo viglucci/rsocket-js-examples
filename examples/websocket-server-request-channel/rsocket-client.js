@@ -18,15 +18,12 @@ const transport = new RSocketWebsocketClient(transportOptions);
 
 const setup = {
   keepAlive: 60000,
-  lifetime: 180000,
-  // dataMimeType: APPLICATION_JSON.string,
-  // metadataMimeType: APPLICATION_JSON.string
+  lifetime: 180000
 };
 
 const client = new RSocketClient({
   setup,
-  transport,
-  // serializers: JsonSerializers
+  transport
 });
 
 client.connect().subscribe({
@@ -44,14 +41,14 @@ client.connect().subscribe({
       .getRandomNumberFlowable()
       .map((number) => {
         const payload = utils.buildMessage({ value: number });
-        logger.info('Client sending:', payload);
+        logger.info('Sending (serialized):', payload);
         return payload;
       });
 
     socket.requestChannel(stream).subscribe({
       onSubscribe: (sub) => {
         subscription = sub;
-        logger.info(`Client is establishing a channel`);
+        logger.info('Establishing a stream.');
         subscription.request(0x7fffffff);
 
         utils.onClose(async () => {
@@ -60,10 +57,10 @@ client.connect().subscribe({
         });
       },
       onNext: (msg) => {
-        logger.info('Client recieved:', utils.deSerializeMsg(msg));
+        logger.info('Received (deserialized):', utils.deSerializeMsg(msg));
       },
       onComplete: () => {
-        logger.info('Client received end of server stream.');
+        logger.info('Received end of server stream.');
       },
       onError: (e) => {
         logger.error('An error occurred', e);
