@@ -18,7 +18,9 @@ const statuses = {
 
 function handleCurrentTimeRequestResponse(payload) {
   let status = statuses.PENDING;
+
   console.log(`requestResponse request`, payload);
+
   return new Single((subscriber) => {
 
     /**
@@ -72,13 +74,17 @@ const getRequestHandler = (requestingRSocket, setupPayload) => {
   console.log("Client connected...", setupPayload);
 
   function handleRequestResponse(payload) {
-    const messageId = payload.metadata;
+
+    // TODO: shouldn't need to manually parse JSON object when using `application/json` mimetype
+    const data = payload.data ? JSON.parse(payload.data) : null;
+    const { messageId } = JSON.parse(payload.metadata);
+
     switch (messageId) {
       case 'timeService.currentTime': {
-        return handleCurrentTimeRequestResponse(payload);
+        return handleCurrentTimeRequestResponse(data);
       }
       default: {
-        return handleUnsupportedMessageRequestResponse(payload);
+        return handleUnsupportedMessageRequestResponse(data);
       }
     }
   }

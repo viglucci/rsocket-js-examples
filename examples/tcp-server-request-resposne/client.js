@@ -11,10 +11,10 @@ function now() {
 function createClient(options) {
   return new RSocketClient({
     setup: {
-      dataMimeType: 'text/plain',
+      dataMimeType: 'application/json',
       keepAlive: 1000000,
       lifetime: 100000,
-      metadataMimeType: 'text/plain',
+      metadataMimeType: 'application/json',
     },
     transport: new RSocketTCPClient({
       host: options.host,
@@ -28,29 +28,46 @@ async function connect(options) {
   return await client.connect();
 }
 
-async function run() {
-  return new Promise(async (resolve, reject) => {
-    const rsocket = await connect({
-      host: '127.0.0.1',
-      port: 9090,
-    });
+async function getCurrentTime(rsocket) {
+  return new Promise(function (resolve, reject) {
+    const payload = {
+      data: null,
+      // TODO: shouldn't need to manually stringify JSON object when using `application/json` mimetype
+      metadata: JSON.stringify({
+        messageId: "timeService.currentTime"
+      })
+    };
+    console.log(`request: `, payload);
     rsocket
-        .requestResponse({
-          data: null,
-          metadata: "timeService.currentTime"
-        })
+        .requestResponse(payload)
         .subscribe({
           onComplete: (response) => {
-            console.log(`requestResponse response`, response);
+            resolve(response);
           },
           onError: (error) => {
-            console.error(error);
+            reject(error);
           },
           onSubscribe: (_cancel) => {
-            cancel = _cancel;
+            //...
           },
         });
   });
+}
+
+async function run() {
+  const rsocket = await connect({
+    host: '127.0.0.1',
+    port: 9090,
+  });
+  return Promise.all([
+    getCurrentTime(rsocket)
+        .then((response) => {
+          console.log(`response: `, response);
+        })
+        .catch((error) => {
+          console.error(`error: `, error);
+        })
+  ]);
 }
 
 Promise.resolve(run()).then(
