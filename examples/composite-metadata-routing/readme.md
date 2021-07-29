@@ -1,6 +1,8 @@
-# websocket-server-fire-and-forget
+# composite-metadata-routing
 
 In this directory you will find an example using [`rsocket-js`](https://github.com/rsocket/rsocket-js) to build a client and a server, which communicate using the [`RSocket`](https://rsocket.io/) protocol.
+
+The client and server will leverage Composite Metadata to describe how to route messages within their respective applications.
 
 ## Client Behavior
 
