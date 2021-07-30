@@ -4,7 +4,7 @@ const { Single } = require('rsocket-flowable');
 
 const WebSocketTransport = RSocketWebSocketServer.default;
 const host = '127.0.0.1';
-const port = 9898;
+const port = 8080;
 
 const transportOpts = {
   host: host,
