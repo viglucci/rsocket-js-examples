@@ -1,4 +1,4 @@
-# websocket-server-request-response
+# rsocket-js create-react-app example
 
 In this directory you will find an example using [`rsocket-js`](https://github.com/rsocket/rsocket-js) to build a client and a server, which communicate using the [`RSocket`](https://rsocket.io/) protocol. The client is built using [Create React App](https://reactjs.org/docs/create-a-new-react-app.html).
 
